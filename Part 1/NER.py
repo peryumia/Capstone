@@ -2,24 +2,9 @@
 在kg7.py基础上：
 1. 尝试qwen3:14b
 2. 每部分完成重启ollama防止同一窗口上下文爆炸
-3. 允许ollama和vpn共存
 """
 
 import sys, os, json
-from pathlib import Path
-
-
-
-import os
-
-# 清除所有代理环境变量，防止请求走VPN代理
-for key in ['http_proxy', 'https_proxy', 'HTTP_PROXY', 'HTTPS_PROXY']:
-    os.environ.pop(key, None)
-
-os.environ['no_proxy'] = 'localhost,127.0.0.1,127.0.0.1:11434'
-
-
-import json
 import re
 from pathlib import Path, PurePath
 import ollama
@@ -38,8 +23,7 @@ class OllamaClient:
         resp = ollama.chat(model=self.model,
                            messages=[{"role": "user", "content": prompt}])
         return resp["message"]["content"].strip().splitlines()[-1]
-
-# ============== 共用工具 ==================================
+        
 def chat_last_line(prompt: str, client: OllamaClient) -> str:
     return client.ask(prompt)
 
