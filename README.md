@@ -1,5 +1,6 @@
 # Capstone
 Part 1 + Part 2
+
 先跑part2，再跑part1，最后得到带std的标准json文件即可，全部发给我我去构造成最终知识图谱。
 
 ## Part 1
