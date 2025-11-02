@@ -31,7 +31,7 @@ class OllamaClient:
     def __init__(self, model: str = "deepseek-chat"):
         self.model = model
         # Your DeepSeek API Key
-        api_key = "sk-ca02b34094134bd8902281716aad4a65"
+        api_key = "API KEY"
 
         self.client = OpenAI(
             api_key=api_key,
