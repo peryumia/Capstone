@@ -11,4 +11,4 @@ ollama pull qwen3:14b，跑NER.py，记得修改输入文件路径，输出会�
 ### 从md中用LLM抽取信息
 md文件放Input文件夹下面，跑extract_info_api.py，记得填写deepseek的api key，输出是output文件夹下同名的txt。
 
-得到txt之后跑convert_to_json_api.ipynb，转换成所需的json文件，跑完之后检查一下。
+得到txt之后跑convert_to_json_api_files.ipynb，可以处理同一个文件多个建模的情况，转换成所需的json文件，跑完之后检查一下。
