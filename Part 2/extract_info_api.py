@@ -31,7 +31,7 @@ class OllamaClient:
     def __init__(self, model: str = "deepseek-chat"):
         self.model = model
         # Your DeepSeek API Key
-        api_key = "API KEY"
+        api_key = "YOUR API KEY"
 
         self.client = OpenAI(
             api_key=api_key,
@@ -66,6 +66,8 @@ JSON_SCHEMA: Dict[str, Any] = {
 # 3) Few-shot
 # -----------------------
 FEW_SHOT_EXAMPLE = """
+0. article title: "Evolutionary algorithms for multi-objective flexible job shop cell scheduling"
+
 1. problem description: "The multi-factory model consists of F factories, which are geographically distributed in different locations. Each factory has H_f machines. Each machine can perform various operations with different operating lead times (T_{ijfh}). Each machine is subject to a maximum machine age \\overline{M}. The machine age is defined as the cumulated operating time. If the machine age reaches \\overline{M}, maintenance must be carried out immediately after the current operation finishes. After maintenance, the machine age is reset to 0. The maintenance time may vary depending on the machine age. In common practice, the relationship between the required maintenance time and the machine age is usually obtained empirically. The problem is to satisfy I jobs, where each job has N_i operations. The traveling time between factory f and job i is denoted by D_{if}. The objective of the problem is to minimize the makespan of the jobs. ";
 
 2. parameters:[{"symbol": "f", "definition": "index for factory"},{"symbol": "i","definition": "index for job"}];
@@ -92,7 +94,7 @@ def make_prompt(markdown_text: str) -> str:
     return (
         "给定以下论文文本内容，文本内容中包含一个调度问题实例的信息：\n"
         f"{markdown_text[:200000]}\n\n"
-        "请根据给定的文本信息，从中抽取出有用的信息，也就是一个调度问题实例的全部组件，具体包括：该问题本身描述（problem description），"
+        "请根据给定的文本信息，从中抽取出有用的信息，也就是一个调度问题实例的全部组件，具体包括：该论文标题，该问题本身描述（problem description），"
         "参数（parameter）和决策变量（decision variable）的具体符号和描述，目标函数（objective function）和约束（constraint）的具体公式和描述。\n"
         "输出示例如下（严格按此格式输出）:\n"
         f"{FEW_SHOT_EXAMPLE}\n\n"
