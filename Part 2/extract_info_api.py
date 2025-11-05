@@ -11,10 +11,16 @@ from jsonschema import Draft7Validator
 from pathlib import Path
 
 # =============== 输入/输出路径 ===============
-IN_MD   = Path.home() / "Documents/研究生/Capstone/Part2/Input/1.md"
-OUT_DIR = Path.home() / "Documents/研究生/Capstone/Part2/output"
-out_path = OUT_DIR / IN_MD.with_suffix(".txt").name
-out_path.parent.mkdir(parents=True, exist_ok=True)
+# =============== 输入/输出路径 ===============
+IN_DIR  = Path.home() / "Documents/研究生/Capstone/Part2/Input"   # 输入目录
+OUT_DIR = Path.home() / "Documents/研究生/Capstone/Part2/output"  # 输出目录
+OUT_DIR.mkdir(parents=True, exist_ok=True)
+# ——手动指定要处理的 txt 完整路径——
+FILES = [
+
+    "Part2/Input/5.md"
+]
+
 # ===============================================================
 
 try:
@@ -85,14 +91,14 @@ FEW_SHOT_EXAMPLE = """
 SYSTEM_INSTRUCTION = (
     "You are an expert in operations research. "
     "Please extract from the given paper one concrete scheduling problem instance and output ALL its components, "
-    "including: (1) the problem description, (2) parameters and decision variables with their specific symbols and definitions, "
+    "including: (0) title of this article (1) the problem description, (2) parameters and decision variables with their specific symbols and definitions, "
     "(3) the objective function, and (4) constraints with explicit equations and textual descriptions. "
     "Strictly follow the example format as shown in the example. Carefully read the paper text to ensure that the extracted instance is complete "
     "and faithful to the source. Do not fabricate content.")
 
 def make_prompt(markdown_text: str) -> str:
     return (
-        "给定以下论文文本内容，文本内容中包含一个调度问题实例的信息：\n"
+        "给定以下论文文本内容，文本内容中包含一个或多个调度问题实例的信息：\n"
         f"{markdown_text[:200000]}\n\n"
         "请根据给定的文本信息，从中抽取出有用的信息，也就是一个调度问题实例的全部组件，具体包括：该论文标题，该问题本身描述（problem description），"
         "参数（parameter）和决策变量（decision variable）的具体符号和描述，目标函数（objective function）和约束（constraint）的具体公式和描述。\n"
@@ -100,6 +106,7 @@ def make_prompt(markdown_text: str) -> str:
         f"{FEW_SHOT_EXAMPLE}\n\n"
         "请仔细阅读给定论文信息，确保抽取具体调度实例的全部信息，并严格按照上面的示例格式输出：\n"
         "注意：请仅输出上述示例的五个部分（1~5）及其字段，保持 LaTeX 表达式的正确性，不要添加额外说明文本。\n"
+        "若该论文中存在同一个问题的多种数学建模，请重复按照上述格式输出多次即可。"
     )
 
 # -----------------------
@@ -118,11 +125,11 @@ def validate(payload: Dict[str, Any]) -> List[str]:
 # -----------------------
 # 6) 主流程
 # -----------------------
-def run(md_path: str, out_path: str, model: str = "deepseek-chat") -> None:  # [修改] 默认模型名改为 deepseek-chat
+def run(md_path: str, out_path: str, model: str = "deepseek-chat") -> None:  # 默认模型名改为 deepseek-chat
     with open(md_path, "r", encoding="utf-8", errors="ignore") as f:
         md_text = f.read()
 
-    client = OllamaClient(model=model)  # [修改] 仍复用同名类，但内部已改为 DeepSeek API
+    client = OllamaClient(model=model)
     prompt = make_prompt(md_text)
     print("\n===== PROMPT (BEGIN) =====")
     print(prompt)
@@ -149,11 +156,14 @@ def run(md_path: str, out_path: str, model: str = "deepseek-chat") -> None:  # [
     # print(f"✅ 已保存：{out_path}")
 
 def main():
-    _ = argparse.ArgumentParser(description="(fixed paths) Extract scheduling problem text using DeepSeek API (replacing local Ollama).")
-    # 直接用固定路径运行
-    if not IN_MD.exists():
-        raise FileNotFoundError(f"未找到输入文件：{IN_MD}")
-    run(str(IN_MD), str(out_path), model="deepseek-chat")  # 指定 deepseek-chat
+    for p in FILES:
+        src = Path(p).expanduser().resolve()
+        if not src.exists():
+            print(f"❌ 未找到：{src}")
+            continue
+        # 输出仍写到固定 OUT_DIR，扩展名统一写成 .txt
+        out_path = OUT_DIR / src.with_suffix(".txt").name
+        run(str(src), str(out_path), model="deepseek-chat")
 
 if __name__ == "__main__":
     main()
